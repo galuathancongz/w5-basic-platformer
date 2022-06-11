@@ -19,7 +19,15 @@ namespace Game.Runtime
         Slider slider;
         [SerializeField]
          LayerMask enemyLayer;
-        
+        public LayerMask enemyBoss1Layer;
+        public LayerMask enemyBBLayer;
+        float attackdame=1f;
+        float jumpdame=1f;
+        public Toggle AttackCheck;
+        public Toggle JumpCheck;
+
+
+
 
         // Start is called before the first frame update
         void Start()
@@ -60,7 +68,7 @@ namespace Game.Runtime
             }
             if (isJump == true)
             {
-                gameObject.transform.DOLocalJump(new Vector2(transform.localPosition.x, tdgy), 2, 1, 1, false);
+                gameObject.transform.DOLocalJump(new Vector2(transform.localPosition.x, tdgy), jumpdame, 1, 1, false);
             }
             if (gameObject.transform.localPosition.y > 1f)
             {
@@ -72,21 +80,48 @@ namespace Game.Runtime
             if (Input.GetMouseButtonDown(0))
             {
                 _animator.SetTrigger("Attack_1");
+                Collider2D[] enemybb = Physics2D.OverlapCircleAll(transform.position, 1f, enemyBBLayer);
+               
+                foreach (Collider2D item in enemybb)
+                {
+                    Debug.Log("Vo");
+                    item.GetComponent<TriggedBigBoss>().Hit(attackdame);
+                }
                 Collider2D[] enemy = Physics2D.OverlapCircleAll(transform.position, 1f, enemyLayer);
-                Debug.Log(enemy.Length);
+               
                 foreach (Collider2D item in enemy)
                 {
-                    item.GetComponent<Trigged>().Hit(1);
+                    item.GetComponent<Trigged>().Hit(attackdame);
                 }
+
+                Collider2D[] enemyboss1 = Physics2D.OverlapCircleAll(transform.position, 1f, enemyBoss1Layer);
+                
+                foreach (Collider2D item in enemyboss1)
+                {
+                    item.GetComponent<TriggedBoss>().Hit(attackdame);
+                }
+
+                
             }
 
+        }
+        public void Lamcham(float value)
+        {
+            StartCoroutine(Slow(value));
+            Debug.Log("Lamcham");
+        }
+        public IEnumerator Slow(float valuest)
+        {
+            WasHit(valuest);
+            yield return new WaitForSeconds(0.1f);
         }
         public void WasHit(float values)
         {
             slider.value -= values;
             if (slider.value <= 0)
             {
-                _animator.SetTrigger("dead");
+                _animator.SetTrigger("Death");
+                
             }
         }
         private void OnTriggerEnter2D(Collider2D collision)
@@ -95,8 +130,30 @@ namespace Game.Runtime
             {
                 Debug.Log("An HP");
                 slider.value = slider.maxValue;
+                Destroy(Trigged.a);
+                Destroy(TriggedBoss.a);
+                //Trigged.a = new GameObject();
+            }
+          
+            if (collision.gameObject.CompareTag("AttackBonus"))
+            {
+                AttackCheck.isOn=true;
+                Debug.Log("An Attack");
+                attackdame = 2;
                 Destroy(Trigged.a);        
                 //Trigged.a = new GameObject();
+            }
+            if (collision.gameObject.CompareTag("JumpBonus"))
+            {
+                JumpCheck.isOn = true;
+                Debug.Log("An Attack");
+                jumpdame = 2;
+                Destroy(TriggedBoss.b);
+            }
+            if (collision.gameObject.CompareTag("Water"))
+            {
+                Debug.Log("Nuoc");
+                slider.value = 0;
             }
         }
     }
