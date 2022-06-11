@@ -26,8 +26,6 @@ namespace Game.Editor
         {
             if (Creepy_4 == null && Creepy_3 == null && Creepy_1 == null && Creepy_2 == null)
             {
-                Creepy_3.SetActive(false);
-                Creepy_4.SetActive(false);
                 Win.SetActive(true);
             }
             else if (Creepy_3 == null && Creepy_1 == null && Creepy_2 == null)
